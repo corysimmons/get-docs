@@ -1,12 +1,10 @@
-const puppeteer = require('puppeteer')
-const minimist = require('minimist')
+import puppeteer from 'puppeteer'
+import minimist from 'minimist'
 
-// Parse command line arguments
 const args = minimist(process.argv.slice(2), {
   string: ['url', 'tocSelector', 'contentSelector'],
 })
 
-// Function to check if required arguments are provided
 function checkRequiredArgs(options) {
   const missingArgs = []
   ;['url', 'tocSelector', 'contentSelector'].forEach((arg) => {
@@ -17,18 +15,17 @@ function checkRequiredArgs(options) {
 
   if (missingArgs.length > 0) {
     console.error(`Missing required arguments: ${missingArgs.join(', ')}`)
-    process.exit(1) // Exit the process with an error code
+    process.exit(1)
   }
 }
 
 checkRequiredArgs(args)
 
-// Main script logic encapsulated in an async function
 async function runScript() {
   const { url: baseUrl, tocSelector, contentSelector } = args
 
   const browser = await puppeteer.launch({
-    headless: 'new', // Assuming you want headless mode; change as needed.
+    headless: 'new',
   })
 
   const page = await browser.newPage()
@@ -48,7 +45,7 @@ async function runScript() {
   }, tocSelector)
 
   for (let p of pages) {
-    const url = new URL(p, baseUrl).href // Ensure the URL is absolute.
+    const url = new URL(p, baseUrl).href
     console.log(`Visiting: ${url}`)
     await page.goto(url, { waitUntil: 'networkidle2' })
 
@@ -74,12 +71,10 @@ async function runScript() {
 
 process.on('SIGINT', async () => {
   console.log('Received SIGINT. Exiting...')
-  // No browser.close() here since the browser variable is not accessible
   process.exit(0)
 })
 
-// Run the main script
 runScript().catch((err) => {
   console.error('Script encountered an error:', err)
-  process.exit(1) // Exit with an error status
+  process.exit(1)
 })
